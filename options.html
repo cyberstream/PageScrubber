@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>PageScrubber Preferences</title>
+
+        <style>
+            body {background:#eee}
+            
+            ::selection {background:rgba(50, 50, 50, .2); color:#333; }
+            
+            #wrapper {
+                position:relative;
+                margin: 2em auto;
+                width: 500px;
+                min-height:300px;
+                background:#bababa;
+                background: -o-linear-gradient(top, rgba(200, 200, 200, 0.2) 20%, #ccc 80%);
+                padding: 1em;
+                border-radius: 10px;
+                margin-top:20px;
+                box-shadow:inset 0 0 2px #fff, 0 0 20px #bbb, 0 0 5px #fff,
+                                    7px 7px 0px #ccc, -7px -7px 0px #ccc, -7px 7px 0px #ccc, 7px -7px 0px #ccc,
+                                    8px 8px 0px #bbb, -8px -8px 0px #bbb, -8px 8px 0px #bbb, 8px -8px 0px #bbb, 
+                                    35px 25px 25px #aaa;
+                font:bold 16px Arial, "Lucida Grande", Calibri, sans-serif;
+                text-shadow:1px 1px 0 #fff;
+                color:#111;
+                z-index:10;
+                border:1px solid #999;
+            }
+
+            #wrapper input[type=text] {
+                border-radius:5px;
+                padding:8px;
+                box-shadow:0 0 3px #fff;
+                font:18px Arial, "Lucida Grande", Calibri, sans-serif;
+                background:#e1e1e1;
+                background-image:-o-linear-gradient(bottom, #cdcdcd, #fff 40%);
+                border:1px solid #999;
+                color:#666;
+                margin:3px 7px;
+            }
+
+            #wrapper input[type=text]:hover {
+                border:1px solid #777;
+                color:#222;
+            }
+
+            #wrapper input[type=text]:focus {
+                box-shadow:1px 1px 1px #fff, inset 1px 1px 10px #999;  
+                border:1px solid #2a2a2a;
+                border-color:#444 #2a2a2a #2a2a2a #444;
+                background-image:-o-linear-gradient(top, #ddd, #fff);
+                color:#222;
+            }
+
+            #wrapper h1 {
+                text-align:center;
+                padding:0;
+                margin:3px 0;
+                font-size:1.5em;
+            }
+
+            button {
+                padding:8px;
+                font:bold 18px Arial, "Lucida Grande", Calibri, sans-serif;
+                cursor: pointer;
+            }
+            
+            div.message {
+                padding:7px;
+                border:1px solid #666; 
+                box-shadow:1px 1px 2px #fff, inset 1px 1px 10px #666;
+                border-radius:5px;
+                color:#222;
+                background:-o-linear-gradient(bottom, #aaa, #fff);
+                -o-transition:color 150ms ease-in-out;
+            }
+
+            div.message:hover {
+                color:#3a3a3a;
+            }
+            
+            .close_message {
+                cursor:pointer;
+                position:relative;
+                float:right;
+                font-size:14px;
+                top:-7px;
+                color:#999;
+                -o-transition:font-size 200ms ease, color 400ms ease;
+            }
+            
+            .close_message:hover {
+                font-size:20px;
+                color:#333;
+            }
+            
+            input[type=text]#search {
+                width:167px;
+                margin-left:26px;
+            }
+            
+            input[type=number] {
+                font:bold 18px arial, "Lucida Grande", sans-serif;
+                width:50px;
+                background:none;
+                border:none;
+                color:#333;
+                -o-transition:color 400ms ease;
+            }
+            
+            input[type=number]:hover {
+                color:#111;
+            }
+            
+            #reset, #save_reset {
+                background-color:#ccc;
+                background-image:-o-linear-gradient(bottom, #bbb, #e9e9e9);
+                padding:3px 8px; 
+                color:#111;
+                display:inline-block;
+                font:bold 22px calibri, "Lucida Granda", arial, sans-serif;
+                border-radius:4px; /* round corners */
+                border:1px solid #888;
+                box-shadow:inset 0 -20px 0 rgba(50, 50, 50, .15), 0 0 6px #bbb; 
+                text-shadow:0 1px 1px #eee;
+                margin:10px;
+                cursor:pointer;
+            }
+            
+            input#save_reset {
+                border:1px solid #aaa;
+                padding:1px 6px;
+            }
+            
+            #reset:hover, #save_reset:hover {
+                background-color:#bbb;
+                background:-o-linear-gradient(bottom, #ccc, #fff);
+                box-shadow:inset 0 -20px 0 rgba(50, 50, 50, .2); 
+                color:#222;
+                text-shadow:0 1px 1px #eee;
+            }
+
+            #reset:active, #save_reset:active { text-shadow:0 -1px 1px #eee }
+            
+            footer {
+                position:fixed;
+                bottom:35px;
+                left:-90px;
+                padding:6px;
+                padding-left:90px;
+                padding-right:90px;
+                background:rgba(80, 80, 80, .3);
+                background:-o-linear-gradient(bottom, #aaa, #ccc);
+                font:16px "Lucida Grande", Arial, sans-serif;
+                color:#444;
+                border:1px solid #777;
+                border-color:#999 #666 #777 #999;
+                box-shadow:inset 0 0 3px #fff, 0 0 12px #999, inset 0 -15px 2px rgba(50, 50, 50, .2);
+                -o-transform: rotate(30deg);
+                text-shadow:1px 1px 0 #fff;
+            }
+            
+            a {
+                color:#333;
+                font-weight:bold;
+                text-decoration: none;
+            }
+            
+            span.censor, .whitelist, .blacklist {
+                border: 1px solid #eee;
+                box-shadow:0 0 1px #000;
+                border-radius:5px;
+                padding:2px 4px;
+                background:-o-linear-gradient(bottom, #999, #eee);
+                cursor:pointer;
+                margin-left:10px;
+            }
+            
+            span.censor:hover, .whitelist:hover {
+                border: 1px solid #fff;
+                background:-o-linear-gradient(bottom, #aaa, #eaeaea);
+            }
+            
+            span.censor:active, .whitelist:active {
+                background:-o-linear-gradient(top, #aaa, #eaeaea);
+            }
+            
+            #overlay {
+                position: fixed;
+                top:0;
+                left:0;
+                width:100%;
+                height:100%;
+                background:#fff;
+                opacity: 0;
+                z-index:990;
+            }
+            
+            #dialog label {
+                padding:0 5px;
+                font-size:14px;
+                font-weight: bold;
+                color:#555;
+                -o-transition:color 250ms ease-in-out;
+            }
+            
+            #dialog label:hover {
+                color:#111;
+            }
+            
+            #dialog {
+                background:-o-linear-gradient(top, rgba(255, 255, 255, .8) 20%, rgba(250, 250, 250, .3));
+                color: #000;
+                display:block;
+                left: 35%;
+                width:390px;
+                top:70px;
+                z-index:995;  /* above the overlay */
+                position: fixed;
+/*                box-shadow:5px 5px 0px #ccc, -5px -5px 0px #ccc, -5px 5px 0px #ccc, 5px -5px 0px #ccc,
+                                      6px 6px 0px #bbb, -6px -6px 0px #bbb, -6px 6px 0px #bbb, 6px -6px 0px #bbb, 0 0 55px #bebebe;*/
+/*                border: 2px solid rgba(0, 0, 0, .25);*/
+                box-shadow: 10px 10px 20px #ccc;
+                border: 8px solid rgba(0, 0, 0, .25);
+                padding:7px 12px;
+                border-radius: 6px;
+                font: 16px Arial, "Lucida Grande", Calibri, sans-serif;
+            }
+            
+            #dialog:hover {
+                border: 8px solid rgba(0, 0, 0, .4);
+                box-shadow: 10px 10px 20px #aaa;
+            }
+            
+            #close {
+                font-weight:bold;
+                font-size:20px;
+                opacity:0.55;
+                -o-transition:opacity 250ms ease;
+                cursor:pointer;
+                float:right;
+                padding:0 2px;
+                z-index:999;
+            }
+            
+            #close:hover {
+                opacity:1;
+            }
+            
+            #check_all { 
+                cursor:pointer; 
+                font-weight:bold;
+                padding:0 5px;
+                opacity: .5;
+                -o-transition:opacity 250ms ease-in-out;
+            }
+            
+            #check_all:hover {
+                opacity:1;
+            }
+            
+            #reset_form {
+                margin-left:20px;
+            }
+            
+            #info {
+                padding:2px;
+                background:-o-linear-gradient(bottom, #ddd, #eaeaea); 
+                text-align:center; 
+                border-radius:25px; 
+                width:20px; 
+                font-size:16px; 
+                font-weight:bold; 
+                color:#555; 
+                box-shadow:inset 0 0 5px #777; 
+                border:1px solid #e1e1e1;
+                box-shadow:0 0 1px #000;
+                text-shadow:1px 0 0 #fff;
+            }
+            
+            #info:hover {
+                color: #999;
+                background:-o-linear-gradient(bottom, #e1e1e1, #eee);
+                border:1px solid #eee;
+            }
+                     
+            #info + p:after {
+                content:'';
+                width:0;
+                top:0;
+                padding:0;
+                border:9px solid transparent;
+                border-bottom-color:#ddd;
+                position:absolute;
+                border-left-width:0px;
+                top:-16px;
+                left:12px;
+                z-index:12;
+                border-right-width:10px;
+                opacity:0;
+            }
+            
+            #info + p:before {
+                content:'';
+                width:0;
+                top:0;
+                padding:0;
+                border:9px solid transparent;
+                border-bottom-color:#aaa;
+                position:absolute;
+                border-left-width:0px;
+                top:-18px;
+                left:11px;
+                z-index:10;
+                border-right-width:10px;
+                opacity:0;
+            }      
+            
+            #info:hover + p:before, #info:hover +p:after {
+                opacity:1;
+            }
+            
+            #info + p {
+                opacity:0;
+                background:rgba(200, 200, 200, .4);
+                font-size:11px;
+                font-family:arial, sans-serif;
+                color:#333;
+                position:absolute;
+                padding:6px 10px;
+                z-index:100;
+                border-radius:5;
+                border:1px solid #aaa;
+                box-shadow:0 0 25px rgba(0,0,0,.1);
+            }
+            
+            #info:hover + p {
+                opacity:1;
+            }
+            
+            h1#ds-head {
+                margin:10px;
+            }
+            
+            #ds-table {
+                margin: 15px 0 12px 3px;
+            }
+            
+            #ds-table td:nth-child(2) {
+                cursor:pointer;
+                color:rgb(200, 0, 0);
+                -o-transition: color 300ms ease;
+            }
+            
+            #ds-table td:nth-child(2):hover {
+                color:rgb(255, 0, 0);
+                text-decoration: underline;
+            }
+            
+            #ds-table td {
+                padding:3px 5px;
+            }
+            
+            #ds-empty {
+                font-style: italic;
+            }
+            
+            #ds-table tr {
+                padding:3px;
+            }
+            
+            #ds-table tr td:nth-child(2) {
+                border-radius:10px;
+            }            
+            
+            #ds-table tr:hover td:nth-child(2) {
+                background-color: rgba(255, 255, 255, .4);
+            }
+            
+            #ds-table td:nth-child(2):hover:after { content: "?"; }
+            </style>    
+    </head>
+    <body>
+        <div id="info">i</div>
+        <p class="small">Extension preference pages are not filtered by PageScrubber.</p>
+        
+        <div id="wrapper">
+            <h1>PageScrubber Preferences</h1>
+            <form id="form">
+                <p><label for="replacement">Replace censored words with: </label><input type="text" id="replacement" name="replacement" maxlength="50" /><button type="submit" id="r_button">OK</button></p>                
+            </form>
+            
+            <form id="search_form">
+                <p><label for="search">Add/remove a censored word:  </label><input type="text" name="search" id="search" placeholder="Find..." style="margin-left:8px" /><button type="submit" id="search_button">Find</button></p>
+            </form>
+            
+            <form>
+                <p><input type="checkbox" id="page_block" value="1" /> Block pages containing <input type="number" min="1" max="100" value="1" id="page_block_value" /> or more censored words. </p>
+            </form>
+            
+            <h1 id="ds-head">Unfiltered Sites</h1>
+            
+            <form action="" id="add_site_form">
+                <label for="add_site">Don't filter this website: <input type="text" required="required" placeholder="sitename.com" name="add_site" id="add_site" /></label>
+                <button type="submit">Add</button> 
+            </form>
+            
+            <table id="ds-table">
+                <!--JS will populate the table with list of disabled sites-->
+            </table>
+            
+            <div id="reset">Reset Preferences...</div>
+            <span id="reset_message"></span> <!-- replaced with message when preferences are reset --> 
+        </div>
+        
+        <footer>&copy; <a href="http://twitter.com/cyberstream_us">cyberstream</a> 2011</footer>
+
+        <script src="includes/page_scrub.js"></script>
+        <script type="text/javascript" src="disabled_site_object.js"></script>
+        <script>
+            $ = function(selector) { //save typing...
+                if (!document.querySelector(selector)) return false;
+                else return document.querySelector(selector);
+            }
+            
+            function isset(variable) { // isset function; like PHP
+                return typeof variable == 'undefined' ? false : true;
+            }
+            
+            function insertAfter( currentNode, newNode ) { // helper function
+                currentNode.parentNode.insertBefore( newNode, currentNode.nextSibling )
+            }
+            
+            Array.prototype.deleteItem = function(item_value) { 
+                arr = this.map(lowercase);                                         // convert all array values and "item_value" to lowercase
+                item_value = item_value.toLowerCase();
+                item_index = arr.indexOf(item_value);                       // get index of given value
+
+                if (item_index >= 0 && item_index < this.length) {      // make sure the index is valid
+                    arr.splice(item_index, 1);
+                }
+                
+                return arr
+            }
+            
+            isArray = function( obj ) {
+                return toString.call(obj) === "[object Array]";
+            }
+
+            lowercase = function(text) {
+                if (typeof text != 'string') return false
+                else return text.toLowerCase()
+            }
+            
+            var prefs = widget.preferences; // save typing         
+            
+            /* whitelist & blacklist prep */
+            
+            if (typeof prefs.whitelist == 'undefined') {
+                    prefs.whitelist = '[]'                              // if there was no whitelist, set whitelist to an empty array
+            } 
+            
+            if (typeof prefs.blacklist == 'undefined') {
+                    prefs.blacklist = '[]'                              // if there was no blacklist, set whitelist to an empty array
+            } 
+            
+            /* preference reset functions */
+            
+            reset_replacement = function() {
+                prefs.replacement = ' ##### '
+                form.replacement.value = ' ##### '
+            }
+            
+            reset_blocking = function() {
+                prefs.block_pages = 'false'
+                prefs.block_level = '0'
+                
+                page_block_check.checked = false
+                page_block.value = 1
+            }
+            
+            reset_whitelist = function() {
+                prefs.whitelist = '[]'
+            }
+            
+            reset_blacklist = function() {
+                prefs.blacklist = '[]'
+            }
+            
+            reset_disabled_sites = function() {
+                var ds = new DisabledSite(),
+                ds_table = $('#ds-table')
+                
+                prefs.disabled_sites = JSON.stringify([])
+                
+                if (ds.dslist.length > 0) {
+                    ds.dslist = []
+                    ds.joined_dslist = ''     
+                    
+                    var new_ds_table = document.createElement('table')
+                    new_ds_table.id = 'ds-table'
+                    
+                    var msg =  document.createElement('span')
+                    msg.id ='ds-empty'
+                    msg.appendChild(document.createTextNode('There are no websites in the unfiltered list.'))
+                    
+                    new_ds_table.appendChild(msg)
+                    
+                    ds_table.parentNode.replaceChild(new_ds_table, ds_table)
+                }
+            }
+
+            window.onkeypress = function(e) {
+                if (e.which == 0) { // if the esc key was pressed & the dialog is visible, remove.
+                    if ($('#dialog')) {
+                        NewAlert.remove()
+
+                        shout('No preferences were reset.', $('#reset'))
+                        display_shout('message');
+                    }
+                } 
+            }
+            
+            /* new alert object */
+            
+            NewAlert = {
+                create : function(text) {
+                    overlay = document.createElement('div')
+                    overlay.id = 'overlay'
+                    document.body.appendChild(overlay)
+                    
+                    overlay.fadeIn = function() {
+                        if (!$('#overlay')) return false
+                        
+                        /* config */
+                        
+                        overlay = $('#overlay')
+                        finalOpacity = .8
+                        
+                        overlay.style.opacity = finalOpacity
+                        
+//                        overlayOpacity = parseFloat(overlay.style.opacity, 10) ? parseFloat(overlay.style.opacity, 10) : 0
+//                        increment = .1
+//                        
+//                        /* fade in */
+//
+//                        if (overlayOpacity >= finalOpacity)  return false               // exit the function if the fadein animation is completed
+//                        else overlay.style.opacity = overlayOpacity + increment  // otherwise, increment the opacity
+
+//                        setTimeout(overlay.fadeIn, 5)
+                    }
+                    
+                    overlay.fadeIn() // fade-in the overlay
+                    
+                    // create & display the modal box
+                    
+                    modal = document.createElement('div')
+                    modal.id = 'dialog'
+                    
+                    modalClose = document.createElement('span')
+                    modalClose.id = 'close'
+                    modalClose.title = 'Close'
+//                  modalClose.onclick = function() { NewAlert.remove() } // remove the overlay and dialog box when the "X" button is clicked
+                    
+                    
+                    modalClose.appendChild(document.createTextNode('x'))
+                    
+                    modal.appendChild(modalClose)
+                    
+                    modal.innerHTML += text
+                    
+                    document.body.appendChild(modal)
+                    
+                    document.getElementById('close').onclick = function() {
+                        NewAlert.remove()
+                    }
+                    
+                    if ($('#reset_form')) {
+                        $('#reset_form').onsubmit = function() {
+                            reset_fields = []
+                            
+                            if (this.reset_replacement.checked) {
+                                reset_replacement()
+                                reset_fields.push('replacement')
+                            }
+                            
+                            if (this.erase_whitelist.checked) {
+                                reset_whitelist()
+                                reset_fields.push('whitelist')
+                            }
+                            
+                            if (this.erase_blacklist.checked) {
+                                reset_blacklist()
+                                reset_fields.push('blacklist')
+                            }
+                            
+                            if (this.reset_blocking.checked) {
+                                reset_blocking()
+                                reset_fields.push('page block settings')
+                            }
+                            
+                            if (this.reset_disabled_sites.checked) {
+                                reset_disabled_sites()
+                                reset_fields.push('unfiltered sites')
+                            }
+                            
+                            if (reset_fields.length == 0) {
+                                shout('No preferences were reset.', $('#reset'))
+                                display_shout('message');
+                            } else if (reset_fields.length == 1) {
+                                shout('The ' + reset_fields[0] + (reset_fields[0].match(/s$/igm) ? ' were' : ' was') + '  reset.', $('#reset'))
+                                display_shout('message');
+                            } else if (reset_fields.length == 2) {
+                                shout('The ' + reset_fields[0] + ' and ' + reset_fields[1] + ' were reset.', $('#reset'))
+                                display_shout('message');
+                            } else if (reset_fields.length == 4) {
+                                shout('All of the settings were reset.', $('#reset'))
+                                display_shout('message');
+                            } else {
+                                message = 'The '
+                                
+                                for (i = 0; i < reset_fields.length; i++) {
+                                    if (i == reset_fields.length - 1) {
+                                        message += ' and ' + reset_fields[i]
+                                    } else message += reset_fields[i] + ', '
+                                }
+                                
+                                message += ' were reset!'
+                                
+                                shout(message, $('#reset'))
+                                display_shout('message');
+                            }
+                            
+                            NewAlert.remove()
+
+                            return false; // prevent form from submitting
+                        }
+                    }            
+                },
+                
+                remove : function() {
+                    if (!$('#overlay') || !$('#dialog')) return false
+                    
+                    modal = $('#dialog')
+                    overlay = $('#overlay')
+                    modal.parentNode.removeChild(modal)
+                    
+                    overlay.parentNode.removeChild(overlay)
+                }
+            }
+            
+             /* whitelist object */
+            
+            function Whitelist() { 
+                this.words = JSON.parse(prefs.whitelist) // parse the comma separated words 
+                
+                this.remove = function(word) {
+                    this.words = this.words.deleteItem(word)
+                    widget.preferences.whitelist = JSON.stringify(this.words)        // assign the whitelist array to the whitelist local storage variable
+                    this.joined_whitelist = this.words.join(', ')                                 // update "whitelist" array
+                }
+                
+                this.add = function(word) {
+                    var word = word.replace(/,/g, '')
+                    
+                    if (!word.match(dirtyList)) return true // don't add to the whitelist if the word isn't censored 
+                    
+                    for (i = 0; i < this.words.length; i++ ) {
+                        if ( this.words[i].toLowerCase() == word.toLowerCase() ) return // exit the function if the word being added is found in the whitelist
+                    }
+                   
+                    this.words.push(word)                                                             // add word to the whitelist array
+                    widget.preferences.whitelist = JSON.stringify(this.words)        // assign the whitelist array to the whitelist local storage variable
+                    this.joined_whitelist = this.words.join(', ')                                 // update "whitelist" array
+                }
+                
+                this.includes = function(word) {
+                    for (i = 0; i < this.words.length; i++ ) {
+                        if ( this.words[i].toLowerCase() == word.toLowerCase() ) return true // exit the function if the word being added is found in the whitelist
+                    }
+                    
+                    return false
+                }
+            }
+            
+            /* blacklist object */
+            
+            function Blacklist() { 
+                this.words = JSON.parse(prefs.blacklist) // parse the comma separated words 
+                
+                this.remove = function(word) {
+                    this.words = this.words.deleteItem(word)
+                    widget.preferences.blacklist = JSON.stringify(this.words)        // assign the blacklist array to the blacklist local storage variable
+                    this.joined_blacklist = this.words.join(', ')                                 // update "blacklist" array
+                }
+                
+                this.add = function(word) {
+                    var word = word.replace(/,/g, '')
+                    
+                    if (word.match(window.dirtyList)) return true // don't add a word to the blacklist if it is already in the dirtyList
+                    
+                    for (i = 0; i < this.words.length; i++ ) {
+                        if ( this.words[i].toLowerCase() == word.toLowerCase() ) return // exit the function if the word being added is found in the blacklist
+                    }
+
+                    this.words.push(word)                                                             // add word to the blacklist array
+                    widget.preferences.blacklist = JSON.stringify(this.words)        // assign the blacklist array to the blacklist local storage variable
+                    this.joined_blacklist = this.words.join(', ')                                 // update "blacklist" array
+                }
+                
+                this.includes = function(word) {
+                    for (i = 0; i < this.words.length; i++ ) {                        
+                        if ( word.toLowerCase() == this.words[i].toLowerCase() ) return true // exit the function if the word being added is found in the whitelist
+                    }
+                    
+                    return false
+                }
+            }
+            
+             /* assign variables */
+            
+            form = $('#form'),
+            r_button = $('#r_button'), 
+            search_form = $('#search_form'),
+            search_val = $('#search'),
+            page_block_check = $('#page_block'), 
+            page_block = $('#page_block_value'),
+            reset_button = $('#reset')
+                
+            /* set input field defaults */
+            
+            if ( isset(prefs.block_level) ) page_block.value = prefs.block_level; 
+            if ( isset(prefs.block_pages ) && prefs.block_pages == 'true') page_block_check.checked = 'checked'; 
+            if ( !isset(prefs.replacement) ) prefs.replacement = ' ##### '
+            
+            form.replacement.value = prefs.replacement
+            
+            /* reset preferences */
+            
+            reset_button.onclick = function() {
+                conf = NewAlert.create('<p><strong>Which settings do you want to reset?</strong></p><form id="reset_form"><p><label for="reset_replacement">Reset censored words replacement<input type="checkbox" name="reset_replacement" /></label></p><p><label for="erase_whitelist">Erase whitelist<input type="checkbox" name="erase_whitelist" /></label></p><p><label for="erase_blacklist">Erase blacklist<input type="checkbox" name="erase_blacklist" /></label></p><p><label for="reset_blocking">Reset page block settings <input type="checkbox" name="reset_blocking" /></label></p><p><label for="reset_disabled_sites">Erase list of unfiltered sites<input type="checkbox" name="reset_disabled_sites" /></label></p><input type="submit" id="save_reset" value="Reset" /><span id="check_all" data-check="true">Check all</span></form>');
+                
+                $('#check_all').onclick = function() {
+                    var form = $('#reset_form')
+                    
+                    if (this.getAttribute('data-check') == 'true') {
+                        form.reset_replacement.checked = true
+                        form.erase_whitelist.checked = true
+                        form.erase_blacklist.checked = true
+                        form.reset_blocking.checked = true
+                        form.reset_disabled_sites.checked = true
+                        this.setAttribute('data-check', 'false')
+                        this.firstChild.nodeValue = 'Uncheck all'
+                    } else {
+                        form.reset_replacement.checked = false
+                        form.erase_whitelist.checked = false
+                        form.erase_blacklist.checked = false
+                        form.reset_blocking.checked = false
+                        form.reset_disabled_sites.checked = false
+                        this.setAttribute('data-check', 'true')
+                        this.firstChild.nodeValue = 'Check all'
+                    }
+                }
+                
+                if (conf) { 
+                    shout('Your preferences have been reset!', $('#reset'))
+                    display_shout('message');
+                } else {
+                    $('#close').onclick = function() {
+                        NewAlert.remove()
+                        
+                        shout('No preferences were reset.', $('#reset'))
+                        display_shout('message');
+                    }
+                }
+            }
+                       
+            /* managing censored words */
+            
+            function addWordToBlacklist() {
+                var whitelist = new Whitelist(), 
+                blacklist = new Blacklist()
+                
+                wordForBlacklist = search_form.search.value.replace(/,/g, '') // remove commas from the value
+            
+                blacklist.add(wordForBlacklist)
+                whitelist.remove(wordForBlacklist)
+
+                msg = document.createTextNode('"' + wordForBlacklist + '" was blacklisted.');
+
+                shout(msg, document.getElementById('search_form'))
+                display_shout('message')
+            }
+            
+            search_form.onsubmit = function() {
+                var whitelist = new Whitelist(), 
+                blacklist = new Blacklist()
+                
+                var word = this.search.value.replace(/,/g, '') // remove commas from the value
+                
+                if (word == '') return false
+                
+                // "found in blacklist" message
+                
+                found = document.createElement('span')
+                text = document.createTextNode('"' + word + '" was found in the blacklist.');
+
+                element = document.createElement('span');
+                element.className = 'whitelist'
+                element.appendChild(document.createTextNode('Whitelist'));
+
+                found.appendChild(text)
+                found.appendChild(element)
+                
+                // "found in whitelist" message
+                
+                foundInWhitelist = document.createElement('span')
+                wlText = document.createTextNode('"' + word + '" was found in the whitelist.');
+
+                blacklist_button = document.createElement('span');
+                blacklist_button.className = 'blacklist'
+                blacklist_button.appendChild(document.createTextNode('Blacklist'));
+
+                foundInWhitelist.appendChild(wlText)
+                foundInWhitelist.appendChild(blacklist_button)
+                
+                blacklist_button.onclick = function() { addWordToBlacklist() }
+                
+                element.onclick = function() {   // add "word" to whitelist when "element" (the "Whitelist" button) is clicked
+                    whitelist.add(word)
+                    blacklist.remove(word)
+                    
+                    notification = document.querySelector('.message')                    
+                    notification.parentNode.removeChild(notification)
+                    
+                    msg = document.createTextNode('"' + word + '" was successfully whitelisted!');
+                    
+                    shout(msg, document.getElementById('search_form'))
+                    display_shout('message')
+                }
+                
+                if (whitelist.includes(word)) { // check first if the word is in the whitelist
+                    shout(foundInWhitelist, document.getElementById('search_form'))
+                    display_shout('message')
+                } else if (word.match(window.dirtyList) || blacklist.includes(word) ) { // check if the submitted word matches the word blacklist
+                    shout(found, document.getElementById('search_form'))
+                    display_shout('message')
+                } else {
+                    message = document.createElement('span')
+                    text = document.createTextNode('"' + word + '" was not found in the blacklist. ');
+
+                    elem = document.createElement('span');
+                    elem.className = 'censor'
+                    elem.appendChild(document.createTextNode('Censor'));
+
+                    message.appendChild(text)
+                    message.appendChild(elem)
+                    
+                    shout(message, search_form)
+                    display_shout('message') 
+                                                       
+                    elem.onclick = function() { addWordToBlacklist()}                    
+                }
+                
+                return false
+            }
+            
+            /* function to run when the #page_block_value field changes */
+            
+            page_block.onchange = function() {
+                if (typeof parseInt(this.value) == 'number') {
+                    if (this.value > 100) this.value = 100;
+                    if (this.value < 0) this.value = 0;
+                    
+                    if (prefs.block_pages > 100) this.value = 100;
+                    if (this.value < 1) this.value = 1;                    
+                    
+                    prefs.block_level = this.value;
+                }
+            }
+            
+            /* function to run when the #page_block checkbox is checked */
+            
+            page_block_check.onclick = function() {
+                if (this.checked) {
+                    prefs.block_pages = true;                    
+                } else prefs.block_pages = false;
+            }
+            
+            /* handler for the "replace censored words with..." form */
+            
+            form.onsubmit = function() {
+                prefs.replacement = this.replacement.value;
+                
+                if (prefs.replacement.length == 0) {
+                    reply = 'Words will be erased.';
+                } else {
+                    reply = document.createElement('span')
+                    
+                    text = document.createTextNode('Words will be replaced with ');
+                    
+                    elem = document.createElement('i');
+                    elem.appendChild(document.createTextNode(prefs.replacement + '.'));
+                    
+                    reply.appendChild(text)
+                    reply.appendChild(elem)
+                }                
+               
+                shout(reply)
+                display_shout('message') // make the shoutbox visible
+                
+                return false; // prevent form from submitting
+            }
+            
+            /* shouts a message */
+            
+            function shout(message, precedingNode) { 
+                divs = document.getElementsByTagName('div');
+                form = document.getElementById('form');
+                
+                for (i = 0; i < divs.length; i++ ) {
+                    if (divs[i].className == 'message') divs[i].parentNode.removeChild(divs[i]);
+                }
+                
+                message_div = document.createElement('div')
+                message_div.className = 'message';
+                
+                if (message.nodeType == 3 || message.nodeType == 1) message_div.appendChild(message);
+                else message_div.appendChild(document.createTextNode(message));
+//                message_div.style.textIndent = '500px'
+//                message_div.style.height = '1px'
+                
+                if (isset(precedingNode)) {
+                    insertAfter(precedingNode, message_div);
+                } else {
+                    form.appendChild(message_div);
+                }                
+            }
+            
+            /* code for animation commented out to make the message show/hide immediately */
+            
+            function display_shout(which) {
+                message = $('.' + which);
+                
+//                height = parseFloat(message.style.height, 10);
+//                indent = parseInt(message.style.textIndent);
+//                opacity = parseFloat(message.style.opacity, 10) || 0;
+                
+//                if (height < 20) {
+//                    message.style.height = (height + 0.7) + 'px';
+//                }
+//                
+//                if (indent > 5) {
+//                    message.style.textIndent = indent - Math.ceil(Math.abs(0 - indent) / 20) + 'px';
+//                }
+//                
+//                if (opacity < 1.00) {
+//                    message.style.opacity = opacity + .015;
+//                }
+                
+//                if (indent >  5 || height < 20 || (opacity && opacity < 1)) {
+//                    setTimeout("display_shout('" + which + "')", 10);                    
+//                } else {
+                    if (document.getElementsByClassName('close_message').length == 0 ) {                    
+                        close = document.createElement('div');
+                        close.className = 'close_message';
+
+                        close.appendChild(document.createTextNode('x'));
+                        close.onclick = function() { hide_shout('message') }
+
+                        message.appendChild(close);
+                    }
+//                }
+            }
+            
+            function hide_shout(which) {
+                message = $('.' + which);
+                
+//                height = parseFloat(message.style.height, 10);
+//                indent = parseInt(message.style.textIndent);
+//                opacity = parseFloat(message.style.opacity, 10) || 0;
+//                
+//                if (indent < 500) {
+//                    message.style.textIndent = indent + Math.ceil(Math.abs(0 - indent) / 20) + 'px';
+//                }
+//                
+//                if (opacity > 0) {
+//                    message.style.opacity = opacity - .015;
+//                }
+//                
+//                if (indent <  500 || (opacity && opacity > 0)) setTimeout("hide_shout('" + which + "')", 10);
+                message.parentNode.removeChild(message);  // remove the message element if the hide animation is completed
+            }
+            
+            /* populate the table with the unfiltered websites */
+            
+            addEventListener('DOMContentLoaded', function() {
+                var ds = new DisabledSite(), 
+                table = $('#ds-table')                
+
+                if (ds.dslist.length > 0) {
+                    for ( i = 0; i < ds.dslist.length; i++ ) {
+                        var thisSite = ds.dslist[i] // assign current item in the array to a variable
+                        
+                        var row = document.createElement('tr'),
+                              cell1 = document.createElement('td'),
+                              cell2 = document.createElement('td')
+                              
+                        cell1.appendChild(document.createTextNode(thisSite))
+                        
+                        cell2.appendChild(document.createTextNode('delete'))
+                        
+                        cell2.onclick = function() { // function runs when "delete" is clicked
+                            var sitename = this.previousSibling.firstChild.nodeValue,  // get the name of the website in this row
+                                  dsite = new DisabledSite()
+                                  
+                            dsite.remove(sitename)                            
+                            this.parentNode.parentNode.removeChild(this.parentNode)
+                        }
+                        
+                        row.appendChild(cell1)
+                        row.appendChild(cell2)
+                        
+                        table.appendChild(row)
+                    }
+                } else {
+                    var msg = document.createElement('span')
+                    msg.id = 'ds-empty'
+                    msg.appendChild(document.createTextNode('You have no unfiltered websites.'))
+                    
+                    table.appendChild(msg)
+                }
+            }, false)
+                        
+            /* form handler for the unfiltered websites form */
+            
+            $('#add_site_form').onsubmit = function() {
+                var ds = new DisabledSite(),
+                sitename = ds.prepare(this.add_site.value)
+                
+                if (sitename.length > 3 && !ds.includes(sitename)) {
+                    ds.add(sitename) // add website to the unfiltered list
+                    this.add_site.value = '' // empty the form field
+                    
+                    if ($('#ds-empty')) {
+                       var elem = $('#ds-empty')
+                       
+                       elem.parentNode.removeChild(elem)
+                    }
+
+                    var row = document.createElement('tr'),
+                          cell1 = document.createElement('td'),
+                          cell2 = document.createElement('td'), 
+                          table = $('#ds-table')
+
+                    cell1.appendChild(document.createTextNode(sitename))
+
+                    cell2.appendChild(document.createTextNode('delete'))
+
+                    cell2.onclick = function() { // function runs when "delete" is clicked
+                        var sitename = this.previousSibling.firstChild.nodeValue,  // get the name of the website in this row
+                              dsite = new DisabledSite()
+
+                        dsite.remove(sitename)                            
+                        this.parentNode.parentNode.removeChild(this.parentNode)
+                    }
+
+                    row.appendChild(cell1)
+                    row.appendChild(cell2)
+
+                    table.appendChild(row)
+                }
+                
+                return false;
+            }
+        </script>        
+    </body>
+</html>
