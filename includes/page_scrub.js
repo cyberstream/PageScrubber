@@ -124,7 +124,40 @@ removeWord = function(words, reloadTextNodes) {
     }
 }
 
-block = function() {
+d = '[ .!,-/\';":&?]+?' // delimiter for the regex
+
+regexs = ["(^|" + d + ")((a(sse?|rse(s|d)|rse))(b(ag|anger|ite)|cock|clown|cracker|face|goblin|h(at|ead)|jacker|lick(er|ing)?|m(onkey|uncher)|nigger|pirate|h(it|ole)|sucker|w(ad|ipe))?(s)?)($|" + d +")",
+                "(^|" + d + ")b(ampot|astard|itch(es|ed)?|low ?job|ollo(ck|x)|oner|oob|utt hole|utt-hole|utthole)s?($|" + d +")",
+                "(^|" + d + ")c(hoa?de|lit(f(ace|uck(ing|ed)?))|um ?(bubble|dumpster|guzzler|jockey|slut|tart)?|ooter|ock[- ]{0,1}(ass|bite|burger|f(ace|ucker)head|jockey|knoker|m(aster|ongler|ongruel|onkey|uncher)|n(ose|ugget)|s(hit|mith|moke(r)?|niffer|ucker)|waffle)|arpetmuncher|rap(py|ped|pi?er)?)s?($|" + d +")",
+                "(^|" + d + ")d(ang($|" + d +")|arn|amn(ed|ation)?|ammit)",
+                "(^|" + d + ")d(ildo|ookie|um(b?ass|bfuck|b?shit)|ick ?(b(eaters?|ag)|f(ace|uck(er)?)|head|hole|juice|milk|monger|s(lap|uck(er|ing)?)?|w([oa]{1}d|easel|eed)))($|" + d +")",
+                "(^|" + d + ")c(unt|unt(-| )?(ass|face|hole|licker|rag|slut))($|" + d +")",
+                "([a-z0-9]*?fuck[a-z0-9]*)",
+                "(^|" + d + ")(auto)?f(art|eltch|ellatio)($|" + d +")",
+                "(^|" + d + ")(c|k|g)oot?ch(ie|y)?($|" + d +")",
+                "(^|" + d + ")g(osh|od ?d?am(n|m)( ?it)?)($|" + d +")",
+                "(^|" + d + ")h(and ?job|heck)($|" + d +")",
+                "(^|" + d + ")j(ack( |-)?ass|izz)($|" + d +")",
+                "(^|" + d + ")m([ui]{1}ng(e|ing))($|" + d +")",
+                "(^|" + d + ")n(igg(er|a))($|" + d +")",
+                "(^|" + d + ")omg($|" + d +")",
+                "(^|" + d + ")p(iss(ed( off)?)?|flaps?|anooch|oon(ani|any|tag)|unta|ussylicking)($|" + d +")",
+                "(^|" + d + ")queef($|" + d +")",  
+                "(^|" + d + ")r(enob|im( |-)?job)($|" + d +")",
+                "(^|" + d + ")s(crote|chlong|hiz(nit)?|kank|lut ?(bag)?|meg|plooge)($|" + d +")",
+                "((bull) ?)?shit($|" + d +")",
+                "(^|" + d + ")t(wat(lips|s|waffle)?|it(s|((ty) ?)?fuck)?)($|" + d +")",  
+                "(^|" + d + ")w(ank( ?(job))?|tf)($|" + d +")" ]
+
+window.dirtyList = new RegExp('(' + regexs.join('|') + ')', 'igm')
+
+updateWordList = function() {
+    if (blacklist.length > 0) {
+        window.dirtyList = new RegExp('(' + window.dirtyList.toString().replace(/^\//im, '').replace(/\/[\w]*?$/im, '') + '|' + blacklist.join('|') + ')', 'igm') // append the blacklist onto the original censored words regex
+    } else window.dirtyList = new RegExp('(' + regexs.join('|') + ')', 'igm')
+}()
+
+block = function() { // function to block page called when too many censored words are found and page_block is enabled
     window.stop() // stop page load
     
     var body = document.getElementsByTagName('body')[0],
@@ -159,11 +192,13 @@ block = function() {
 pageShouldBeBlocked = function() {
     matches = 0;
     
-    if (block_level > 0) {
+    textNodes = returnAllTextNodes(document.getElementsByTagName('html')[0]);
+    
+    if (block_level > 0) { // make sure that more than 0 words must be found 
         for ( i = 0; i < textNodes.length; i++ ) {
             thisNode = textNodes[i];
-
-            matches += thisNode.nodeValue.match(dirtyList) ? thisNode.nodeValue.match(dirtyList).length : 0;
+            
+            matches += thisNode.nodeValue.match(window.dirtyList) ? thisNode.nodeValue.match(window.dirtyList).length : 0;
 
             if (matches >= block_level) break;                
         }
@@ -172,42 +207,11 @@ pageShouldBeBlocked = function() {
     } else return true;
 }
 
-d = '[ .!,-/\';":&?]+?' // delimiter for the regex
-
-regexs = ["(^|" + d + ")((a(sse?|rse(s|d)|rse))(b(ag|anger|ite)|cock|clown|cracker|face|goblin|h(at|ead)|jacker|lick(er|ing)?|m(onkey|uncher)|nigger|pirate|h(it|ole)|sucker|w(ad|ipe))?(s)?)($|" + d +")",
-                "(^|" + d + ")b(ampot|astard|itch(es|ed)?|low ?job|ollo(ck|x)|oner|oob|utt(-| )?hole)s?($|" + d +")",
-                "(^|" + d + ")c(hoa?de|lit(f(ace|uck(ing|ed)?))|um ?(bubble|dumpster|guzzler|jockey|slut|tart)?|ooter|ock[- ]{0,1}(ass|bite|burger|f(ace|ucker)head|jockey|knoker|m(aster|ongler|ongruel|onkey|uncher)|n(ose|ugget)|s(hit|mith|moke(r)?|niffer|ucker)|waffle)|arpetmuncher|rap(py|ped|pi?er)?)s?($|" + d +")",
-                "(^|" + d + ")d(ang($|" + d +")|arn|amn(ed|ation)?|ammit)",
-                "(^|" + d + ")d(ildo|ookie|um(b?ass|bfuck|b?shit)|ick ?(b(eaters?|ag)|f(ace|uck(er)?)|head|hole|juice|milk|monger|s(lap|uck(er|ing)?)?|w([oa]{1}d|easel|eed)))($|" + d +")",
-                "(^|" + d + ")c(unt|unt(-| )?(ass|face|hole|licker|rag|slut))($|" + d +")",
-                "([a-z0-9]*?fuck[a-z0-9]*)",
-                "(^|" + d + ")(auto)?f(art|eltch|ellatio)($|" + d +")",
-                "(^|" + d + ")(c|k|g)oot?ch(ie|y)?($|" + d +")",
-                "(^|" + d + ")g(osh|od ?d?am(n|m)( ?it)?)($|" + d +")",
-                "(^|" + d + ")h(and ?job|heck)($|" + d +")",
-                "(^|" + d + ")j(ack( |-)?ass|izz)($|" + d +")",
-                "(^|" + d + ")m([ui]{1}ng(e|ing))($|" + d +")",
-                "(^|" + d + ")n(igg(er|a))($|" + d +")",
-                "(^|" + d + ")omg($|" + d +")",
-                "(^|" + d + ")p(iss(ed( off)?)?|flaps?|anooch|oon(ani|any|tag)|unta|ussylicking)($|" + d +")",
-                "(^|" + d + ")queef($|" + d +")",  
-                "(^|" + d + ")r(enob|im( |-)?job)($|" + d +")",
-                "(^|" + d + ")s(crote|chlong|hiz(nit)?|kank|lut ?(bag)?|meg|plooge)($|" + d +")",
-                "((bull) ?)?shit($|" + d +")",
-                "(^|" + d + ")t(wat(lips|s|waffle)?|it(s|((ty) ?)?fuck)?)($|" + d +")",  
-                "(^|" + d + ")w(ank( ?(job))?|tf)($|" + d +")" ]
-
-window.dirtyList = new RegExp('(' + regexs.join('|') + ')', 'igm')
-
-updateWordList = function() {
-    if (blacklist.length > 0) {
-        window.dirtyList = new RegExp('(' + window.dirtyList.toString().replace(/^\//im, '').replace(/\/[\w]*?$/im, '') + '|' + blacklist.join('|') + ')', 'igm') // append the blacklist onto the original censored words regex
-    }
-}()
-
 // filter the page after it is modified by AJAX (e.g. Twitter)
 
-window.XMLHttpRequest.prototype._send = window.XMLHttpRequest.prototype.send;
+if (typeof window.XMLHttpRequest.prototype._send == 'undefined') {   
+    window.XMLHttpRequest.prototype._send = window.XMLHttpRequest.prototype.send;
+}
 
 window.XMLHttpRequest.prototype.send = function(data) {
     try {
@@ -215,17 +219,21 @@ window.XMLHttpRequest.prototype.send = function(data) {
     } catch(e) {
         //console.log('failed')
     }
-    
+
     if (typeof this._onreadystatechange == 'function') {
         this.onreadystatechange = function(e) {
             if (this.readyState == 4 && this.status == 200 ) { //&& ( (typeof this.reponseText != 'undefined' && this.reponseText.length > 3) || (typeof this.reponseXML != 'undefined' && this.reponseXML.length > 3) )) {
-                if (block_pages == 'true') {
-                    page_should_be_blocked = pageShouldBeBlocked();
-
-                    if ( page_should_be_blocked ) block()
-                }
                 
-                setTimeout(removeWord(window.dirtyList, true), 2500) // allow a couple secs for the page to load
+                if (typeof lastRequest == 'undefined' || new Date() - lastRequest > 1500) { // don't call the filter function if XHRs are less than 1.5 secs apart                
+                    if (block_pages == 'true') {
+                        page_should_be_blocked = pageShouldBeBlocked();
+
+                        if ( page_should_be_blocked ) block()
+                    }                    
+
+                    lastRequest = new Date();
+                    setTimeout(removeWord(window.dirtyList, true), 2500) // allow a couple secs for the page to load
+                } // end lastRequest tests
             }
 
             this._onreadystatechange(e);
@@ -240,11 +248,14 @@ window.addEventListener('DOMContentLoaded', function() {
     if (unfiltered) return // don't run PageScrubber on unfiltered pages
 
     if (block_pages == 'true') {
+        console.log('blocked')
         page_should_be_blocked = pageShouldBeBlocked(window.dirtyList);
-        
+        console.log(page_should_be_blocked)
         if ( page_should_be_blocked ) block()
+        console.log('after block')
         return // exit the function since the page will not need to be blacklisted 
     }    
     
+    console.log('before removeWord')
     removeWord(window.dirtyList, true);  // filter the page
 }, false);
