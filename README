@@ -1,0 +1,11 @@
+PageScrubber Opera Extension: https://addons.opera.com/en/addons/extensions/details/pagescrubber (CHANGELOG is on this page)
+-----------------------------------------
+Author: Eli Mitchell (Twitter: @cyberstream_us, My Opera: http://my.opera.com/cyberstream/about/)
+Contact: dev@cyberstream.us
+-----------------------------------------
+
+Future development ideas:
+
+- Add toolbar button that shows whether site is filtered. Clicking the button would toggle the status.
+- Move the core blocked word list from inside the extension to a remote repository (maybe github?) so it can be modified without having to upload a whole new version of the extension.
+- Usage stats reporting...maybe?
