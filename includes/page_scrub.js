@@ -127,12 +127,19 @@ removeWord = function(words, reloadTextNodes) {
 block = function() {
     window.stop() // stop page load
     
-    body = document.getElementsByTagName('body')[0];    
+    var body = document.getElementsByTagName('body')[0],
+    head = document.getElementsByTagName('head')[0],
+    root = document.getElementsByTagName('html')[0];
     body.parentNode.removeChild(body) // erase the contents of the page
     
-    document.body = document.createElement('body')
-    
+    if (typeof head != 'undefined') { // make sure that the <head> element was found before removing it
+        head.parentNode.removeChild(head)
+        root.appendChild(document.createElement('head'))
+    }
+       
     document.title = 'Page Blocked' 
+    
+    root.appendChild(document.createElement('body')) // append an empty body node to <html>
     
     message = document.createElement('p');
     message.appendChild(document.createTextNode('The page was blocked because too many censored words were found.'))
@@ -198,6 +205,8 @@ updateWordList = function() {
     }
 }()
 
+// filter the page after it is modified by AJAX (e.g. Twitter)
+
 window.XMLHttpRequest.prototype._send = window.XMLHttpRequest.prototype.send;
 
 window.XMLHttpRequest.prototype.send = function(data) {
@@ -216,7 +225,7 @@ window.XMLHttpRequest.prototype.send = function(data) {
                     if ( page_should_be_blocked ) block()
                 }
                 
-                removeWord(window.dirtyList, true)
+                setTimeout(removeWord(window.dirtyList, true), 2500) // allow a couple secs for the page to load
             }
 
             this._onreadystatechange(e);
@@ -227,14 +236,15 @@ window.XMLHttpRequest.prototype.send = function(data) {
 }
 
 window.addEventListener('DOMContentLoaded', function() {
-    if (document.location.protocol.match(/^widget/)) return // add notice on the options page
+    if (document.location.protocol.match(/^widget/)) return // add notice on the options page 
     if (unfiltered) return // don't run PageScrubber on unfiltered pages
 
     if (block_pages == 'true') {
         page_should_be_blocked = pageShouldBeBlocked(window.dirtyList);
         
         if ( page_should_be_blocked ) block()
+        return // exit the function since the page will not need to be blacklisted 
     }    
     
-    removeWord(window.dirtyList, true);
+    removeWord(window.dirtyList, true);  // filter the page
 }, false);
